@@ -1,4 +1,12 @@
 import 'dotenv/config';
+
+process.on('unhandledRejection', (reason) => {
+  console.error('❌ unhandledRejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('❌ uncaughtException:', err);
+});
+
 import express from 'express';
 import session from 'express-session';
 import methodOverride from 'method-override';
