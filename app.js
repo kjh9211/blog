@@ -53,4 +53,10 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 50080;
-app.listen(PORT, () => console.log(`블로그 서버 실행 중: http://localhost:${PORT}`));
+const server = app.listen(PORT, () => {
+  console.log(`블로그 서버 실행 중: http://localhost:${PORT}`);
+  console.log('활성 핸들 수:', process._getActiveHandles().length);
+});
+
+server.on('error', (err) => console.error('❌ 서버 오류:', err));
+server.on('close', () => console.error('⚠️  서버가 닫혔습니다.'));
