@@ -1,0 +1,10 @@
+<%- include('../layout/header', { title }) %>
+
+<div class="error-page">
+  <h1>500</h1>
+  <p>서버 오류가 발생했습니다.</p>
+  <code><%= message %></code>
+  <br><a href="/">홈으로</a>
+</div>
+
+<%- include('../layout/footer') %>
