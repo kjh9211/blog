@@ -1,4 +1,5 @@
 import pool from '../config/db.js';
+import { uploadImage } from '../config/upload.js';
 
 function slugify(text) {
   return text
@@ -123,4 +124,12 @@ export async function deletePost(req, res, next) {
   } catch (err) {
     next(err);
   }
+}
+
+export function uploadImageHandler(req, res) {
+  uploadImage(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message });
+    if (!req.file) return res.status(400).json({ error: '파일이 없습니다.' });
+    res.json({ url: `/uploads/${req.file.filename}` });
+  });
 }

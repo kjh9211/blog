@@ -36,6 +36,11 @@
 
   <div class="form-group">
     <label for="content">내용</label>
+    <div class="editor-toolbar">
+      <button type="button" id="img-upload-btn" class="btn btn-sm btn-secondary">이미지 업로드</button>
+      <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+      <span id="img-upload-status" class="upload-status"></span>
+    </div>
     <textarea id="content" name="content" class="form-textarea" rows="24" placeholder="내용을 입력하세요..." required><%= post ? post.content : '' %></textarea>
   </div>
 
