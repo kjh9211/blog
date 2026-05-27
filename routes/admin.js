@@ -16,6 +16,9 @@ router.get(
 // Logout
 router.post('/logout', requireAuth, adminController.logout);
 
+// Image upload
+router.post('/upload/image', requireAuth, adminController.uploadImageHandler);
+
 // Dashboard & post management (all protected)
 router.get('/', requireAuth, adminController.dashboard);
 router.get('/posts/new', requireAuth, adminController.newPostPage);
