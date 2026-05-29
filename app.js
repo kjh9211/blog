@@ -54,10 +54,11 @@ app.use((err, req, res, next) => {
   res.status(500).render('public/error', { title: '서버 오류', message: err.message });
 });
 
-const PORT = process.env.PORT || 5008;
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 50080;
+const server = app.listen(PORT, () => {
   console.log(`블로그 서버 실행 중: http://localhost:${PORT}`);
-  setTimeout(() => {
-    console.log("⏱️ 30초 대기 완료.");
-  }, 30000);
+  console.log('활성 핸들 수:', process._getActiveHandles().length);
 });
+
+server.on('error', (err) => console.error('❌ 서버 오류:', err));
+server.on('close', () => console.error('⚠️  서버가 닫혔습니다.'));
