@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Blog</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">Dev Blog</a>
+      <div class="nav-links">
+        <a href="/">글 목록</a>
+        <a href="/about">소개</a>
+      </div>
+    </div>
+  </nav>
+  <main class="container" id="main">
+    <p class="empty">불러오는 중...</p>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span>Dev Blog &copy; <span id="year"></span></span>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    const slug = location.pathname.replace(/^\/post\//, '');
+
+    fetch(`/api/posts/${encodeURIComponent(slug)}`)
+      .then(r => {
+        if (r.status === 404) { const e = new Error('404'); e.status = 404; throw e; }
+        if (!r.ok) throw new Error('server');
+        return r.json();
+      })
+      .then(({ post }) => {
+        document.title = `${post.title} | Dev Blog`;
+        const date = new Date(post.created_at).toLocaleDateString('ko-KR', {
+          year: 'numeric', month: 'long', day: 'numeric',
+        });
+        document.getElementById('main').innerHTML = `
+          <article class="post-article">
+            <header class="post-header">
+              <h1>${esc(post.title)}</h1>
+              <div class="post-meta">
+                <span class="badge badge-${esc(post.content_type)}">${esc(post.content_type.toUpperCase())}</span>
+                <time>${date}</time>
+              </div>
+            </header>
+            <div class="post-content">${post.renderedContent}</div>
+          </article>
+          <a class="back-link" href="/">&larr; 목록으로</a>
+        `;
+        hljs.highlightAll();
+      })
+      .catch(err => {
+        const main = document.getElementById('main');
+        if (err.status === 404) {
+          main.innerHTML = '<div class="error-page"><h1>404</h1><p>페이지를 찾을 수 없습니다.</p><a href="/">홈으로</a></div>';
+        } else {
+          main.innerHTML = '<div class="error-page"><h1>오류</h1><p>글을 불러오지 못했습니다.</p><a href="/">홈으로</a></div>';
+        }
+      });
+  </script>
+</body>
+</html>

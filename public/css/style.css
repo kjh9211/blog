@@ -291,3 +291,31 @@ main.container { flex: 1; padding-top: 48px; padding-bottom: 64px; }
 
 /* ===== Admin body bg ===== */
 .admin-body { background: #0a0e14; }
+
+/* ===== Login divider ===== */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--muted);
+  font-size: .8rem;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.login-error {
+  color: var(--danger);
+  font-size: .82rem;
+  margin-top: 8px;
+  min-height: 1.2em;
+  text-align: center;
+}
+
+/* ===== Test post badges ===== */
+.badge-test { background: #2a1a3e; color: #c792ea; }
+.expires-countdown { font-size: .72rem; color: #c792ea; font-variant-numeric: tabular-nums; }

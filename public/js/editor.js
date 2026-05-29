@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('image', file);
 
       try {
-        const res = await fetch('/admin/upload/image', { method: 'POST', body: formData });
+        const res = await fetch('/admin/api/upload/image', { method: 'POST', body: formData });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || '업로드 실패');
 
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Only auto-fill slug if post is new (slug display is empty)
-  const isNew = slugDisplay && slugDisplay.value === '';
+  const isNew = document.getElementById('post-form')?.dataset.mode !== 'edit';
 
   if (titleInput && slugDisplay && isNew) {
     titleInput.addEventListener('input', () => {

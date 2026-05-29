@@ -14,11 +14,17 @@ CREATE TABLE IF NOT EXISTS posts (
   content      LONGTEXT     NOT NULL,
   content_type ENUM('markdown','html') NOT NULL DEFAULT 'markdown',
   published    TINYINT(1)   NOT NULL DEFAULT 0,
+  expires_at   DATETIME     NULL DEFAULT NULL,
   created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_slug (slug),
-  INDEX idx_pub_created (published, created_at DESC)
+  INDEX idx_pub_created (published, created_at DESC),
+  INDEX idx_expires (expires_at)
 );
+
+-- 기존 DB 마이그레이션 (이미 테이블이 있는 경우 실행):
+-- ALTER TABLE posts ADD COLUMN expires_at DATETIME NULL DEFAULT NULL;
+-- ALTER TABLE posts ADD INDEX idx_expires (expires_at);
 
 -- 접속 권한 부여 (필요 시 root 계정으로 실행)
 -- GRANT ALL PRIVILEGES ON blog_db.* TO 'kjh9211'@'%';
