@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import {configDotenv} from 'dotenv';
+
+configDotenv();
 
 process.on('unhandledRejection', (reason) => {
   console.error('❌ unhandledRejection:', reason);

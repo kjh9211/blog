@@ -17,19 +17,20 @@ const PAGE_SIZE = 10;
 export async function listPosts(req, res, next) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-    const offset = (page - 1) * PAGE_SIZE;
+    
+    // offset 계산 후 확실하게 정수형(Number)으로 확정 지어줍니다.
+    const offset = Number((page - 1) * PAGE_SIZE);
+    const limit = Number(PAGE_SIZE);
 
-    const [[{ total }]] = await pool.execute(
+    const [[{ total }]] = await pool.query(
       'SELECT COUNT(*) AS total FROM posts WHERE published = 1 AND (expires_at IS NULL OR expires_at > NOW())'
     );
     const totalPages = Math.ceil(total / PAGE_SIZE);
 
-    const [posts] = await pool.execute(
-      `SELECT id, title, slug, content_type, LEFT(content, 200) AS excerpt, created_at
-       FROM posts
-       WHERE published = 1 AND (expires_at IS NULL OR expires_at > NOW())
-       ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-      [PAGE_SIZE, offset]
+    // 쿼리 매개변수에 명시적으로 형변환된 limit과 offset을 넣습니다.
+    const [posts] = await pool.query(
+      'SELECT id, title, slug, content_type, LEFT(content, 200) AS excerpt, created_at FROM posts WHERE published = 1 AND (expires_at IS NULL OR expires_at > NOW()) ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [limit, offset]
     );
 
     res.json({ posts, page, totalPages });
