@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import {configDotenv} from 'dotenv';
+
+configDotenv();
 
 process.on('unhandledRejection', (reason) => {
   console.error('❌ unhandledRejection:', reason);
@@ -52,5 +54,10 @@ app.use((err, req, res, next) => {
   res.status(500).render('public/error', { title: '서버 오류', message: err.message });
 });
 
-const PORT = process.env.PORT || 50080;
-app.listen(PORT, () => console.log(`블로그 서버 실행 중: http://localhost:${PORT}`));
+const PORT = process.env.PORT || 5008;
+app.listen(PORT, () => {
+  console.log(`블로그 서버 실행 중: http://localhost:${PORT}`);
+  setTimeout(() => {
+    console.log("⏱️ 30초 대기 완료.");
+  }, 30000);
+});
