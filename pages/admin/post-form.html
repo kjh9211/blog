@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>포스트 작성 | Admin</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-body">
+  <nav class="nav admin-nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/admin">관리자</a>
+      <div class="nav-links">
+        <a href="/admin/posts/new">새 글 작성</a>
+        <a href="/">블로그 보기</a>
+        <button type="button" class="btn-link" id="logout-btn">로그아웃</button>
+      </div>
+    </div>
+  </nav>
+  <main class="container">
+    <div class="page-header admin-page-header">
+      <h1 id="form-title">포스트</h1>
+    </div>
+    <div id="alert" class="alert alert-error" style="display:none"></div>
+    <form class="post-form" id="post-form">
+      <div class="form-group">
+        <label for="title">제목</label>
+        <input id="title" type="text" name="title" class="form-input" placeholder="포스트 제목" required>
+      </div>
+      <div class="form-group">
+        <label for="slug-display">슬러그 (URL)</label>
+        <input id="slug-display" type="text" class="form-input slug-preview" placeholder="자동 생성됩니다" readonly>
+      </div>
+      <div class="form-group">
+        <label>형식</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="content_type" value="markdown" checked> Markdown
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="content_type" value="html"> HTML
+          </label>
+        </div>
+        <span id="editor-mode-hint" class="form-hint">마크다운 형식으로 작성합니다.</span>
+      </div>
+      <div class="form-group">
+        <label for="content">내용</label>
+        <div class="editor-toolbar">
+          <button type="button" id="img-upload-btn" class="btn btn-sm btn-secondary">이미지 업로드</button>
+          <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none">
+          <span id="img-upload-status" class="upload-status"></span>
+        </div>
+        <textarea id="content" name="content" class="form-textarea" rows="24" placeholder="내용을 입력하세요..." required></textarea>
+      </div>
+      <div class="form-group form-check">
+        <label class="check-label">
+          <input type="checkbox" id="published" name="published" value="1"> 공개 게시
+        </label>
+      </div>
+      <div class="form-actions">
+        <a href="/admin" class="btn btn-secondary">취소</a>
+        <button type="submit" class="btn btn-primary">저장</button>
+      </div>
+    </form>
+  </main>
+
+  <!-- 편집 모드 감지: editor.js의 DOMContentLoaded 핸들러보다 먼저 실행됨 -->
+  <script>
+    (function () {
+      const m = location.pathname.match(/\/admin\/posts\/(\d+)\/edit/);
+      if (m) document.getElementById('post-form').dataset.mode = 'edit';
+    })();
+  </script>
+  <script src="/js/editor.js"></script>
+  <script>
+    const editMatch = location.pathname.match(/\/admin\/posts\/(\d+)\/edit/);
+    const isEdit = !!editMatch;
+    const postId = editMatch ? editMatch[1] : null;
+
+    document.getElementById('form-title').textContent = isEdit ? '포스트 수정' : '새 포스트';
+    document.title = (isEdit ? '포스트 수정' : '새 포스트') + ' | Admin';
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      fetch('/admin/api/logout', { method: 'POST' })
+        .then(() => { location.href = '/admin/login'; });
+    });
+
+    function showError(msg) {
+      const el = document.getElementById('alert');
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    if (isEdit) {
+      fetch(`/admin/api/posts/${postId}`)
+        .then(r => {
+          if (r.status === 401) { location.href = '/admin/login'; throw new Error('unauth'); }
+          if (!r.ok) throw new Error('load');
+          return r.json();
+        })
+        .then(({ post }) => {
+          document.getElementById('title').value = post.title;
+          document.getElementById('slug-display').value = post.slug;
+          document.getElementById('content').value = post.content;
+          document.getElementById('published').checked = !!post.published;
+          const radio = document.querySelector(`input[name="content_type"][value="${post.content_type}"]`);
+          if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change')); }
+        })
+        .catch(err => {
+          if (err.message !== 'unauth') showError('포스트를 불러오지 못했습니다.');
+        });
+    }
+
+    document.getElementById('post-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const content = document.getElementById('content').value.trim();
+      const content_type = document.querySelector('input[name="content_type"]:checked').value;
+      const published = document.getElementById('published').checked ? 1 : 0;
+
+      if (!title || !content) { showError('제목과 내용을 입력해주세요.'); return; }
+
+      const url = isEdit ? `/admin/api/posts/${postId}` : '/admin/api/posts';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      try {
+        const r = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, content_type, published }),
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || '저장에 실패했습니다.');
+        location.href = '/admin';
+      } catch (err) {
+        showError(err.message);
+      }
+    });
+  </script>
+</body>
+</html>

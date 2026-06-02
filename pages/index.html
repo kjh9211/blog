@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Blog</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">Dev Blog</a>
+      <div class="nav-links">
+        <a href="/">글 목록</a>
+        <a href="/about">소개</a>
+      </div>
+    </div>
+  </nav>
+  <main class="container">
+    <div class="page-header">
+      <h1>글 목록</h1>
+    </div>
+    <div id="content"><p class="empty">불러오는 중...</p></div>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span>Dev Blog &copy; <span id="year"></span></span>
+    </div>
+  </footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    const params = new URLSearchParams(location.search);
+    const page = parseInt(params.get('page')) || 1;
+
+    fetch(`/api/posts?page=${page}`)
+      .then(r => r.json())
+      .then(({ posts, page: p, totalPages }) => {
+        const el = document.getElementById('content');
+        if (!posts.length) {
+          el.innerHTML = '<p class="empty">아직 게시된 글이 없습니다.</p>';
+          return;
+        }
+
+        const items = posts.map(post => {
+          const raw = post.excerpt.replace(/[#*`>_\[\]]/g, '');
+          const excerpt = raw.slice(0, 150);
+          const ellipsis = raw.length >= 150 ? '…' : '';
+          const date = new Date(post.created_at).toLocaleDateString('ko-KR');
+          return `<li class="post-card">
+            <a class="post-title" href="/post/${esc(post.slug)}.${post.id}">${esc(post.title)}</a>
+            <p class="post-excerpt">${esc(excerpt)}${ellipsis}</p>
+            <div class="post-meta">
+              <span class="badge badge-${esc(post.content_type)}">${esc(post.content_type.toUpperCase())}</span>
+              <time>${date}</time>
+            </div>
+          </li>`;
+        }).join('');
+
+        let pager = '';
+        if (totalPages > 1) {
+          const prev = p > 1 ? `<a href="/?page=${p - 1}">&larr; 이전</a>` : '';
+          const next = p < totalPages ? `<a href="/?page=${p + 1}">다음 &rarr;</a>` : '';
+          pager = `<nav class="pagination">${prev}<span>${p} / ${totalPages}</span>${next}</nav>`;
+        }
+
+        el.innerHTML = `<ul class="post-list">${items}</ul>${pager}`;
+      })
+      .catch(() => {
+        document.getElementById('content').innerHTML = '<p class="empty">글을 불러오지 못했습니다.</p>';
+      });
+  </script>
+</body>
+</html>

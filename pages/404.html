@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title %> | Dev Blog</title>
+  <title>404 Not Found | Dev Blog</title>
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
 </head>
 <body>
   <nav class="nav">
@@ -18,3 +17,17 @@
     </div>
   </nav>
   <main class="container">
+    <div class="error-page">
+      <h1>404</h1>
+      <p>페이지를 찾을 수 없습니다.</p>
+      <a href="/">홈으로</a>
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span>Dev Blog &copy; <span id="year"></span></span>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -3,8 +3,7 @@ import * as publicController from '../controllers/publicController.js';
 
 const router = express.Router();
 
-router.get('/', publicController.home);
-router.get('/about', publicController.about);
-router.get('/post/:slug', publicController.post);
+router.get('/posts', publicController.listPosts);
+router.get('/posts/:slug', publicController.getPost);
 
 export default router;

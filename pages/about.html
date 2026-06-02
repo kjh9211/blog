@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>소개 | Dev Blog</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="/">Dev Blog</a>
+      <div class="nav-links">
+        <a href="/">글 목록</a>
+        <a href="/about">소개</a>
+      </div>
+    </div>
+  </nav>
+  <main class="container">
+    <div class="page-header">
+      <h1>소개</h1>
+    </div>
+    <div class="about-content">
+      <p>안녕하세요. 개발에 관심 있는 블로거입니다.</p>
+      <p>이 블로그에는 개발 관련 글, 학습 기록, 프로젝트 후기 등을 올립니다.</p>
+    </div>
+  </main>
+  <footer class="footer">
+    <div class="container">
+      <span>Dev Blog &copy; <span id="year"></span></span>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    hljs.highlightAll();
+  </script>
+</body>
+</html>
