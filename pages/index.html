@@ -57,7 +57,7 @@
           const ellipsis = raw.length >= 150 ? '…' : '';
           const date = new Date(post.created_at).toLocaleDateString('ko-KR');
           return `<li class="post-card">
-            <a class="post-title" href="/post/${esc(post.slug)}">${esc(post.title)}</a>
+            <a class="post-title" href="/post/${esc(post.slug)}.${post.id}">${esc(post.title)}</a>
             <p class="post-excerpt">${esc(excerpt)}${ellipsis}</p>
             <div class="post-meta">
               <span class="badge badge-${esc(post.content_type)}">${esc(post.content_type.toUpperCase())}</span>

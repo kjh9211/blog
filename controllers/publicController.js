@@ -39,11 +39,29 @@ export async function listPosts(req, res, next) {
   }
 }
 
+// "{slug}.{id}" 형식의 파라미터에서 ID(숫자)와 slug를 분리합니다.
+// 마지막 점(.) 뒤가 순수 숫자면 ID로, 그렇지 않으면 전체를 slug로 처리합니다.
+function parseSlugId(param) {
+  const lastDot = param.lastIndexOf('.');
+  if (lastDot !== -1) {
+    const tail = param.slice(lastDot + 1);
+    if (/^\d+$/.test(tail)) {
+      return { id: parseInt(tail, 10), slug: param.slice(0, lastDot) };
+    }
+  }
+  return { id: null, slug: param };
+}
+
 export async function getPost(req, res, next) {
   try {
-    const [rows] = await pool.execute(
-      'SELECT * FROM posts WHERE slug = ? AND published = 1 AND (expires_at IS NULL OR expires_at > NOW())',
-      [req.params.slug]
+    const { id, slug } = parseSlugId(req.params.slug);
+
+    // ID가 있으면 ID로 조회 (slug는 SEO용 장식), 없으면 slug로 조회 (하위 호환)
+    const [rows] = await pool.query(
+      id !== null
+        ? 'SELECT * FROM posts WHERE id = ? AND published = 1 AND (expires_at IS NULL OR expires_at > NOW())'
+        : 'SELECT * FROM posts WHERE slug = ? AND published = 1 AND (expires_at IS NULL OR expires_at > NOW())',
+      [id ?? slug]
     );
     if (!rows.length) return res.status(404).json({ error: '포스트를 찾을 수 없습니다.' });
 
